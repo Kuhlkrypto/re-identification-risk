@@ -115,13 +115,13 @@ def generate_random_points_absolute(data, activity_local, number_points_local):
 def check_subset(data, subset):
     """frequency of each element than compare them"""   
     if all(elem in data for elem in subset):
-        data_freq = itemfreq(data)
-        subset_freq = itemfreq(subset)
-        for elem in subset_freq: 
-            if elem[0] in data_freq[:, 0]:
-                itemindex = np.where(data_freq[:, 0] == elem[0])
-                if (len(elem[0]) != len(data_freq[itemindex][0][0])) or \
-                        (int(data_freq[itemindex][0][1]) < int(elem[1])):
+        data_vals, data_counts = np.unique(data, return_counts=True)
+        subset_vals, subset_counts = np.unique(subset, return_counts=True)
+
+        for val, count in zip(subset_vals, subset_counts):
+            if val in data_vals:
+                data_index = np.where(data_vals == val)[0][0]  # Find index of the value in data
+                if data_counts[data_index] < count:  # Compare frequencies
                     return False
             else:
                 return False
