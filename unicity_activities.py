@@ -49,11 +49,11 @@ def prepare_data(events, data, attributes_local):
         attributes_local.append(col_name)
         if type(data[filter_col[0]][0]).__name__ == 'str':
             data[col_name] = data[filter_col].apply(lambda row: row.tolist(), axis=1) 
-            data[col_name] = data[col_name].apply(helps) 
+            data[col_name] = data[col_name].apply(remove_nans)
         else:
             data[filter_col] = data[filter_col].astype(str)
             data[col_name] = data[filter_col].apply(lambda row: row.tolist(), axis=1)
-            data[col_name] = data[col_name].apply(helps) 
+            data[col_name] = data[col_name].apply(remove_nans)
     return data[attributes_local]
 
 
@@ -152,9 +152,22 @@ def make_otherpoints(x, event,act):
     return points
 
 
-def helps(x):
-    n = len(x)-pd.Series(x).last_valid_index()
-    del x[-n:]
+def remove_nans(x):
+    """
+        Removes all NA's values from list x. The list must contain None values (if any), starting at an index
+        to the end of the list
+        :param x: list containing str and Nonevalues
+        :return: list only containing str values
+        """
+    if len(x) > 1 and pd.Series(x).isna().any:
+        i = pd.Series(x).last_valid_index()
+        if i == 0:
+            # don't delete whole list
+            del x[1:]
+        else:
+            # delete nan's
+            n = len(x) -i
+            del x[-n:]
     return x
 
 
